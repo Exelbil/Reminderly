@@ -1,0 +1,11 @@
+@import "tailwindcss";
+
+@theme {
+  --color-brand-purple: #9d7bf6;
+  --color-brand-dark: #7c56df;
+  --color-brand-bg: #f5f6fb;
+}
+
+body {
+  background-color: #f5f6fb;
+}
