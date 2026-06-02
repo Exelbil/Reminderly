@@ -1,4 +1,3 @@
-// DATA SEEDING DEFAULT (Sesuai isi komponen mockup Anda)
 let notes = [
     { id: 1, title: "Tittle", content: "Content" },
     { id: 2, title: "Tittle", content: "Content" },
@@ -15,60 +14,83 @@ let alarmSoundUrl = "https://actions.google.com/sounds/v1/alarms/digital_watch_a
 let currentPlayingAudio = null;
 let itemIndexToDelete = null;
 let isCompletedHidden = false;
+let isSidebarCollapsed = false;
 
-// 1. FUNGSI UTAMA HILANGKAN SPLASH SCREEN AUTOMATICALLY
 document.addEventListener("DOMContentLoaded", () => {
     setTimeout(() => {
         const splash = document.getElementById('splash-screen');
         if (splash) {
             splash.classList.add('opacity-0');
-            setTimeout(() => {
-                splash.style.display = 'none';
-            }, 500);
+            setTimeout(() => { splash.style.display = 'none'; }, 500);
         }
-    }, 1500); // Tampil selama 1.5 detik
+    }, 1500);
+
+    const mp3Uploader = document.getElementById('mp3-uploader');
+    if (mp3Uploader) {
+        mp3Uploader.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                alarmSoundUrl = URL.createObjectURL(file);
+                const ringtoneNameElement = document.getElementById('active-ringtone-name');
+                if (ringtoneNameElement) ringtoneNameElement.innerText = file.name;
+            }
+        });
+    }
+
+    renderAll();
+    setTimeout(() => { switchTab('note'); }, 0);
 });
 
-// 2. NAVIGASI PERPINDAHAN TAB MENU (NOTE, TASK, SETTING)
-function switchTab(tabName) {
-    document.querySelectorAll('.tab-pane').forEach(pane => pane.classList.add('hidden'));
-    
-    const targetPane = document.getElementById(`pane-${tabName}`);
-    if (targetPane) targetPane.classList.remove('hidden');
+function toggleSidebar() {
+    const sidebar = document.getElementById('sidebar-panel');
+    const body = document.getElementById('main-body');
+    const toggleBtn = document.getElementById('sidebar-toggle-btn');
+    const openTrigger = document.getElementById('sidebar-open-trigger');
 
-    // Reset style semua tombol navigasi
+    isSidebarCollapsed = !isSidebarCollapsed;
+
+    if (isSidebarCollapsed) {
+        sidebar.classList.remove('md:flex');
+        sidebar.classList.add('hidden');
+        body.classList.remove('md:pl-72');
+        body.classList.add('md:pl-0');
+        if (toggleBtn) toggleBtn.innerText = "▶";
+        if (openTrigger) {
+            openTrigger.classList.remove('hidden');
+            openTrigger.classList.add('flex');
+        }
+    } else {
+        sidebar.classList.remove('hidden');
+        sidebar.classList.add('md:flex');
+        body.classList.remove('md:pl-0');
+        body.classList.add('md:pl-72');
+        if (toggleBtn) toggleBtn.innerText = "◀";
+        if (openTrigger) {
+            openTrigger.classList.remove('flex');
+            openTrigger.classList.add('hidden');
+        }
+    }
+}
+
+function switchTab(tabName) {
+    document.getElementById('pane-note').classList.add('hidden');
+    document.getElementById('pane-task').classList.add('hidden');
+    document.getElementById('pane-account').classList.add('hidden');
+    
+    const target = document.getElementById(`pane-${tabName}`);
+    if (target) target.classList.remove('hidden');
+
     document.querySelectorAll('.sidebar-btn').forEach(btn => {
-        btn.classList.remove('bg-brand-purple', 'text-white');
+        btn.classList.remove('bg-brand-purple', 'text-white', 'shadow-sm', 'shadow-purple-100');
         btn.classList.add('text-slate-500', 'hover:bg-slate-50');
     });
-    document.querySelectorAll('.mobile-btn').forEach(btn => {
-        btn.classList.remove('text-brand-purple');
-        btn.classList.add('text-slate-400');
-    });
-
-    // Pasang style aktif ke tombol yang diklik
     const activeSide = document.getElementById(`side-btn-${tabName}`);
-    const activeNav = document.getElementById(`nav-btn-${tabName}`);
     if (activeSide) {
-        activeSide.classList.add('bg-brand-purple', 'text-white');
-        activeSide.classList.remove('text-slate-500');
+        activeSide.classList.remove('text-slate-500', 'hover:bg-slate-50');
+        activeSide.classList.add('bg-brand-purple', 'text-white', 'shadow-sm', 'shadow-purple-100');
     }
-    if (activeNav) activeNav.classList.add('text-brand-purple');
 }
 
-// 3. PENGATURAN AUDIO ALARM MP3 CUSTOM DARI DEVICE
-const mp3Uploader = document.getElementById('mp3-uploader');
-if (mp3Uploader) {
-    mp3Uploader.addEventListener('change', function(e) {
-        const file = e.target.files[0];
-        if (file) {
-            alarmSoundUrl = URL.createObjectURL(file); // Konversi file lokal menjadi path URL sementara
-            document.getElementById('active-ringtone-name').innerText = file.name;
-        }
-    });
-}
-
-// 4. SISTEM JAM REALTIME & DETEKSI WAKTU ALARM BERDERING
 setInterval(() => {
     const skrg = new Date();
     const liveTimer = document.getElementById('live-timer');
@@ -76,7 +98,6 @@ setInterval(() => {
         liveTimer.innerText = skrg.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
     }
     
-    // Format pencocokan waktu jam lokal (HH:MM)
     const formatJamMenit = `${String(skrg.getHours()).padStart(2, '0')}:${String(skrg.getMinutes()).padStart(2, '0')}`;
     
     tasks.forEach(t => {
@@ -88,33 +109,36 @@ setInterval(() => {
 
 function startAlarm(title) {
     currentPlayingAudio = new Audio(alarmSoundUrl);
-    currentPlayingAudio.loop = true; // Setel loop terus menerus
-    currentPlayingAudio.play().catch(() => console.log("Izin audio browser dibutuhkan. Klik layar terlebih dahulu."));
+    currentPlayingAudio.loop = true;
+    currentPlayingAudio.play().catch(() => console.log("Izin audio browser dibutuhkan."));
 
-    document.getElementById('alarm-text').innerText = title;
-    document.getElementById('alarm-banner').classList.remove('hidden');
+    const alarmText = document.getElementById('alarm-text');
+    const alarmBanner = document.getElementById('alarm-banner');
+    if (alarmText) alarmText.innerText = title;
+    if (alarmBanner) alarmBanner.classList.remove('hidden');
 }
 
-const btnStopAlarm = document.getElementById('btn-stop-alarm');
-if (btnStopAlarm) {
-    btnStopAlarm.addEventListener('click', () => {
+document.addEventListener('click', (e) => {
+    if (e.target && e.target.id === 'btn-stop-alarm') {
         if (currentPlayingAudio) {
             currentPlayingAudio.pause();
             currentPlayingAudio = null;
         }
-        document.getElementById('alarm-banner').classList.add('hidden');
-    });
-}
+        const alarmBanner = document.getElementById('alarm-banner');
+        if (alarmBanner) alarmBanner.classList.add('hidden');
+    }
+});
 
-// 5. RENDER KOMPONEN UI KARTU (NOTE GRID & TASK LIST)
 function renderAll() {
     const noteGrid = document.getElementById('note-grid');
     if (noteGrid) {
         noteGrid.innerHTML = notes.map((n, i) => `
-            <div class="bg-white p-5 rounded-2xl border border-slate-100 shadow-xs relative group">
-                <h4 class="font-bold text-slate-700 text-sm mb-1">${n.title}</h4>
-                <p class="text-xs text-slate-400">${n.content}</p>
-                <button onclick="openDeleteModal(${i})" class="absolute top-3 right-3 text-xs cursor-pointer opacity-0 group-hover:opacity-100 transition">🗑️</button>
+            <div class="bg-white p-5 rounded-2xl border border-slate-100 shadow-xs relative group hover:shadow-md transition-all duration-200">
+                <h4 class="font-bold text-slate-700 text-sm mb-1.5">${n.title}</h4>
+                <p class="text-xs text-slate-400 leading-relaxed">${n.content}</p>
+                <button onclick="openDeleteModal(${i})" class="absolute top-4 right-4 cursor-pointer opacity-0 group-hover:opacity-100 transition-all duration-150 w-6 h-6 flex items-center justify-center bg-rose-50 text-[10px] rounded-lg">
+                    ❌
+                </button>
             </div>
         `).join('');
     }
@@ -127,15 +151,15 @@ function renderAll() {
         const doneTasks = tasks.filter(t => t.done);
 
         progList.innerHTML = progressTasks.map(t => `
-            <div class="bg-white p-4 rounded-2xl border border-slate-50 flex justify-between items-center shadow-xs">
-                <div class="flex items-center gap-3">
-                    <input type="checkbox" onchange="toggleTaskStatus(${t.id})" class="w-4 h-4 rounded border-slate-300 accent-brand-purple cursor-pointer">
-                    <div>
-                        <p class="text-sm font-semibold text-slate-700">${t.title}</p>
-                        <p class="text-[10px] text-slate-400 mt-0.5">⏰ ${t.datetime}</p>
+            <div class="bg-white p-4 rounded-2xl border border-slate-100 flex justify-between items-center shadow-xs hover:border-purple-100 transition-all">
+                <div class="flex items-center gap-3.5 min-w-0">
+                    <input type="checkbox" onchange="toggleTaskStatus(${t.id})" class="w-4 h-4 rounded border-slate-300 accent-brand-purple cursor-pointer shrink-0">
+                    <div class="min-w-0">
+                        <p class="text-sm font-semibold text-slate-700 truncate">${t.title}</p>
+                        <p class="text-[10px] text-slate-400 mt-1 flex items-center gap-1">⏰ ${t.datetime}</p>
                     </div>
                 </div>
-                <button onclick="deleteTaskData(${t.id})" class="text-xs text-slate-400 hover:text-slate-600">Edit</button>
+                <button onclick="deleteTaskData(${t.id})" class="text-xs text-slate-400 hover:text-brand-purple transition shrink-0 pl-2">Hapus</button>
             </div>
         `).join('');
 
@@ -143,30 +167,24 @@ function renderAll() {
             doneList.innerHTML = '';
         } else {
             doneList.innerHTML = doneTasks.map(t => `
-                <div class="bg-white/60 p-4 rounded-2xl border border-slate-100 flex justify-between items-center opacity-70">
-                    <div class="flex items-center gap-3">
-                        <input type="checkbox" checked onchange="toggleTaskStatus(${t.id})" class="w-4 h-4 rounded border-slate-300 accent-brand-purple cursor-pointer">
-                        <div>
-                            <p class="text-sm font-medium line-through text-slate-400">${t.title}</p>
-                            <p class="text-[10px] text-slate-300 mt-0.5">⏰ ${t.datetime}</p>
+                <div class="bg-white/60 p-4 rounded-2xl border border-slate-100 flex justify-between items-center opacity-60 min-w-0">
+                    <div class="flex items-center gap-3.5 min-w-0">
+                        <input type="checkbox" checked onchange="toggleTaskStatus(${t.id})" class="w-4 h-4 rounded border-slate-300 accent-brand-purple cursor-pointer shrink-0">
+                        <div class="min-w-0">
+                            <p class="text-sm font-medium line-through text-slate-400 truncate">${t.title}</p>
+                            <p class="text-[10px] text-slate-300 mt-1">⏰ ${t.datetime}</p>
                         </div>
                     </div>
-                    <button onclick="deleteTaskData(${t.id})" class="text-xs text-slate-300">Edit</button>
+                    <button onclick="deleteTaskData(${t.id})" class="text-xs text-slate-300 hover:text-rose-500 transition shrink-0 pl-2">Hapus</button>
                 </div>
             `).join('');
         }
     }
 }
 
-// 6. FORM MODAL INPUT LOGIC
 function toggleModal(show) { 
     const modal = document.getElementById('input-modal');
     if (modal) modal.classList.toggle('hidden', !show); 
-}
-
-const btnGlobalAdd = document.getElementById('btn-global-add');
-if (btnGlobalAdd) {
-    btnGlobalAdd.addEventListener('click', () => toggleModal(true));
 }
 
 function saveData() {
@@ -183,49 +201,45 @@ function saveData() {
         tasks.push({
             id: Date.now(),
             title,
-            datetime: `${date || '2026-05-31'} ${time || '12:00'}`,
+            datetime: `${date || '2026-06-02'} ${time || '12:00'}`,
             done: false
         });
     }
     toggleModal(false);
     renderAll();
     
-    // Reset field form input
     document.getElementById('form-title').value = '';
     document.getElementById('form-date').value = '';
     document.getElementById('form-time').value = '';
 }
 
-// 7. OPERASI MANIPULASI DATA (CRUD)
 function openDeleteModal(index) { 
     itemIndexToDelete = index; 
     const delModal = document.getElementById('delete-modal');
     if (delModal) delModal.classList.remove('hidden'); 
 }
+
 function closeDeleteModal() { 
     const delModal = document.getElementById('delete-modal');
     if (delModal) delModal.classList.add('hidden'); 
 }
 
-const btnConfirmDelete = document.getElementById('btn-confirm-delete');
-if (btnConfirmDelete) {
-    btnConfirmDelete.addEventListener('click', () => {
+document.addEventListener('click', (e) => {
+    if (e.target && e.target.id === 'btn-confirm-delete') {
         if (itemIndexToDelete !== null) { 
             notes.splice(itemIndexToDelete, 1); 
             itemIndexToDelete = null; 
         }
         closeDeleteModal();
         renderAll();
-    });
-}
+    }
+});
 
 window.toggleTaskStatus = (id) => { const t = tasks.find(t => t.id === id); if(t) t.done = !t.done; renderAll(); };
 window.deleteTaskData = (id) => { tasks = tasks.filter(t => t.id !== id); renderAll(); };
 window.toggleCompletedSection = () => { 
     isCompletedHidden = !isCompletedHidden; 
-    document.getElementById('completed-chevron').innerText = isCompletedHidden ? '▲' : '▼';
+    const chevron = document.getElementById('completed-chevron');
+    if (chevron) chevron.innerText = isCompletedHidden ? '▲' : '▼';
     renderAll(); 
 };
-
-// INITIAL RUN EXECUTIONS
-renderAll();
