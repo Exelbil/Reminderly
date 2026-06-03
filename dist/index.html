@@ -47,26 +47,26 @@
                     <span class="text-lg"><img src="/image/task svg.svg" alt=""></span> <span>Tugas & Alarm</span>
                 </button>
                 <button onclick="switchTab('account')" id="side-btn-account" class="sidebar-btn w-full flex items-center gap-4 px-4 py-3.5 rounded-xl font-medium text-sm transition text-left cursor-pointer">
-                    <span class="text-lg"><img src="/image/random profile svg.svg" alt=""></span> <span>Akun</span>
+                    <span class="text-lg"><img src="/image/random profile svg.svg" alt=""></span> <span>Account</span>
                 </button>
             </nav>
         </div>
         <div class="text-[11px] text-slate-400 px-4 py-2 border-t border-slate-50 pt-4 flex items-center justify-between">
-            <span>Version 1.0</span> <span class="opacity-30">⚡ Dashboard</span>
+            <span>Version 1.0</span> <span class="opacity-75">@ Reminderly</span>
         </div>
     </aside>
 
-    <button onclick="toggleSidebar()" id="sidebar-open-trigger" class="hidden fixed left-6 top-8 w-11 h-11 bg-white border border-slate-100 rounded-xl shadow-md z-40 items-center justify-center text-slate-600 hover:text-brand-purple cursor-pointer">▶</button>
+    <button onclick="toggleSidebar()" id="sidebar-open-trigger" class="hidden fixed left-6 top-8 w-11 h-11 bg-white border border-slate-100 rounded-xl shadow-md z-40 items-center justify-center text-slate-600 hover:text-brand-purple cursor-pointer animate-in fade-in zoom-in-75">▶</button>
 
     <nav class="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-slate-100 h-20 flex justify-around items-center z-40 px-2 shadow-[0_-4px_20px_rgba(0,0,0,0.02)] rounded-t-3xl">
         <button onclick="switchTab('note')" id="nav-btn-note" class="mobile-btn flex flex-col items-center justify-center transition-all py-2 px-4 rounded-xl">
-            <span class="text-xl mb-1"><img src="/image/note svg.svg" alt=""></span> <span class="text-[10px] font-semibold tracking-wide">Note</span>
+            <span class="text-xl mb-1">📝</span> <span class="text-[10px] font-semibold tracking-wide">Note</span>
         </button>
         <button onclick="switchTab('task')" id="nav-btn-task" class="mobile-btn flex flex-col items-center justify-center transition-all py-2 px-4 rounded-xl">
-            <span class="text-xl mb-1"><img src="/image/task svg.svg" alt=""></span> <span class="text-[10px] font-semibold tracking-wide">Task</span>
+            <span class="text-xl mb-1">📅</span> <span class="text-[10px] font-semibold tracking-wide">Task</span>
         </button>
         <button onclick="switchTab('account')" id="nav-btn-account" class="mobile-btn flex flex-col items-center justify-center transition-all py-2 px-4 rounded-xl">
-            <span class="text-xl mb-1"><img src="/image/random profile svg.svg" alt=""></span> <span class="text-[10px] font-semibold tracking-wide">Account</span>
+            <span class="text-xl mb-1">⚙️</span> <span class="text-[10px] font-semibold tracking-wide">Setting</span>
         </button>
     </nav>
 
@@ -74,9 +74,9 @@
         <div class="w-full max-w-4xl px-4 md:px-8 space-y-8">
             
             <div class="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-4 bg-white p-4 md:px-6 md:py-4 rounded-2xl border border-slate-100 shadow-xs">
-                <div class="relative flex-1 max-w-md">
+                <div id="search-wrapper" class="relative flex-1 max-w-md transition-all duration-200">
                     <input type="text" placeholder="Cari catatan atau tugas Anda di sini..." class="w-full bg-slate-50 text-slate-800 pl-11 pr-4 py-3 rounded-xl text-xs border border-transparent focus:border-brand-purple focus:bg-white focus:outline-none transition-all">
-                    <span class="absolute left-4 top-3.5 opacity-40 text-xs">🔍</span>
+                    <span class="absolute left-4 top-3.5 opacity-40 text-xs"><img src="/image/search_24dp_000000_FILL0_wght400_GRAD0_opsz24.svg" alt=""></span>
                 </div>
                 <div class="text-xs font-bold bg-purple-50 text-brand-dark px-5 py-3 rounded-xl text-center tracking-wider border border-purple-100 min-w-[120px]" id="live-timer">00:00:00</div>
             </div>
@@ -112,7 +112,7 @@
                 <div class="space-y-5">
                     <h4 class="text-xs font-bold text-slate-400 uppercase tracking-widest">Pengaturan Suara Alarm</h4>
                     <div class="p-6 bg-purple-50/50 border border-purple-100 rounded-2xl space-y-4">
-                        <label class="block text-xs font-bold text-brand-dark tracking-wide flex items-center gap-2">🎵 IMPORT FILE MP3 DARI PC</label>
+                        <label class="block text-xs font-bold text-brand-dark tracking-wide flex items-center gap-2"><img src="/image/add svg.svg" alt=""> IMPORT FILE MP3 DARI PC</label>
                         <input type="file" id="mp3-uploader" accept="audio/mp3, audio/mpeg" class="w-full text-xs text-slate-500 file:mr-3 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-brand-purple file:text-white hover:file:bg-brand-dark file:transition file:cursor-pointer">
                     </div>
                     <div class="space-y-2">
@@ -130,9 +130,9 @@
         </div>
     </main>
 
-    <button id="btn-global-add" class="fixed bottom-24 right-6 md:bottom-10 md:right-10 w-14 h-14 bg-brand-purple hover:bg-brand-dark text-white rounded-full flex items-center justify-center shadow-lg shadow-purple-200 transition transform hover:scale-105 active:scale-95 cursor-pointer z-40 text-2xl font-light">+</button>
+    <button id="btn-global-add" onclick="toggleModal(true)" class="fixed bottom-24 right-6 md:bottom-10 md:right-10 w-14 h-14 bg-brand-purple hover:bg-brand-dark text-white rounded-full flex items-center justify-center shadow-lg shadow-purple-200 transition transform hover:scale-105 active:scale-95 cursor-pointer z-40 text-2xl font-light">+</button>
 
-    <div id="input-modal" class="hidden fixed inset-0 bg-black/30 backdrop-blur-xs flex justify-center items-center p-4 z-50">
+    <div id="input-modal" class="hidden fixed inset-0 bg-black/40 backdrop-blur-xs flex justify-center items-center p-4 z-50">
         <div class="bg-white w-full max-w-sm rounded-3xl overflow-hidden shadow-2xl p-6 space-y-5 animate-in fade-in zoom-in-95 duration-150">
             <h3 class="font-bold text-base text-slate-800 border-b border-slate-50 pb-2">Tambah Data Baru</h3>
             <div class="space-y-4">
@@ -153,14 +153,14 @@
                 <div>
                     <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Simpan Sebagai</label>
                     <select id="form-type" class="w-full px-3 py-3 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:outline-none focus:border-brand-purple transition">
-                        <option value="note">Catatan (Note Grid)</option>
-                        <option value="task">Tugas & Alarm Berdering (Task)</option>
+                        <option value="note">📝 Catatan (Note Grid)</option>
+                        <option value="task">📅 Tugas & Alarm Berdering (Task)</option>
                     </select>
                 </div>
             </div>
             <div class="flex gap-3 pt-2">
                 <button onclick="toggleModal(false)" class="flex-1 py-3 bg-slate-100 rounded-xl text-xs font-semibold text-slate-600 hover:bg-slate-200 transition cursor-pointer">Batal</button>
-                <button onclick="saveData()" class="flex-1 py-3 bg-brand-purple hover:bg-brand-dark text-white rounded-xl text-xs font-semibold shadow-md shadow-purple-100 transition cursor-pointer">Simpan</button>
+                <button onclick="saveData()" class="flex-1 py-3 bg-brand-purple hover:bg-brand-dark text-white rounded-xl text-xs font-semibold shadow-md transition cursor-pointer">Simpan</button>
             </div>
         </div>
     </div>

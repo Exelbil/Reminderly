@@ -80,6 +80,27 @@ function switchTab(tabName) {
     const target = document.getElementById(`pane-${tabName}`);
     if (target) target.classList.remove('hidden');
 
+    const searchWrapper = document.getElementById('search-wrapper');
+    if (searchWrapper) {
+        if (tabName === 'account') {
+            searchWrapper.classList.add('hidden');
+        } else {
+            searchWrapper.classList.remove('hidden');
+        }
+    }
+
+    const liveTimer = document.getElementById('live-timer');
+    if (liveTimer) {
+        const headerContainer = liveTimer.parentElement;
+        if (tabName === 'account') {
+            headerContainer.classList.remove('justify-between');
+            headerContainer.classList.add('justify-center');
+        } else {
+            headerContainer.classList.remove('justify-center');
+            headerContainer.classList.add('justify-between');
+        }
+    }
+
     document.querySelectorAll('.sidebar-btn').forEach(btn => {
         btn.classList.remove('bg-brand-purple', 'text-white', 'shadow-sm', 'shadow-purple-100');
         btn.classList.add('text-slate-500', 'hover:bg-slate-50');
@@ -136,9 +157,7 @@ function renderAll() {
             <div class="bg-white p-5 rounded-2xl border border-slate-100 shadow-xs relative group hover:shadow-md transition-all duration-200">
                 <h4 class="font-bold text-slate-700 text-sm mb-1.5">${n.title}</h4>
                 <p class="text-xs text-slate-400 leading-relaxed">${n.content}</p>
-                <button onclick="openDeleteModal(${i})" class="absolute top-4 right-4 cursor-pointer opacity-0 group-hover:opacity-100 transition-all duration-150 w-6 h-6 flex items-center justify-center bg-rose-50 text-[10px] rounded-lg">
-                    ❌
-                </button>
+                <button onclick="openDeleteModal(${i})" class="absolute top-4 right-4 cursor-pointer opacity-0 group-hover:opacity-100 transition-all duration-150 w-6 h-6 flex items-center justify-center bg-rose-50 text-[10px] rounded-lg">❌</button>
             </div>
         `).join('');
     }
@@ -193,21 +212,32 @@ function saveData() {
     const time = document.getElementById('form-time').value;
     const type = document.getElementById('form-type').value;
 
-    if (!title) return alert("Judul agenda kosong!");
+    if (!title) return alert("Judul tidak boleh kosong, bos!");
+
+    // Ambil tanggal & waktu yang diinput user, kalau kosong pakai waktu default sekarang
+    const finalDate = date || new Date().toISOString().split('T')[0];
+    const finalTime = time || "12:00";
+    const datetimeFormat = `${finalDate} ${finalTime}`;
 
     if (type === 'note') {
-        notes.push({ id: Date.now(), title, content: "Catatan baru ditambahkan." });
+        notes.push({ 
+            id: Date.now(), 
+            title: title, 
+            content: `Pengingat terjadwal pada tanggal ${finalDate} jam ${finalTime}` 
+        });
     } else {
-        tasks.push({
-            id: Date.now(),
-            title,
-            datetime: `${date || '2026-06-02'} ${time || '12:00'}`,
-            done: false
+        tasks.push({ 
+            id: Date.now(), 
+            title: title, 
+            datetime: datetimeFormat, 
+            done: false 
         });
     }
+
     toggleModal(false);
     renderAll();
     
+    // Reset isi form
     document.getElementById('form-title').value = '';
     document.getElementById('form-date').value = '';
     document.getElementById('form-time').value = '';
